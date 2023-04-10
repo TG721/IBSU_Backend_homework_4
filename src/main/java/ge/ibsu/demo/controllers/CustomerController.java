@@ -1,11 +1,14 @@
 package ge.ibsu.demo.controllers;
 
 import ge.ibsu.demo.dto.AddCustomer;
+import ge.ibsu.demo.dto.SearchCustomer;
+import ge.ibsu.demo.dto.request.RequestData;
 import ge.ibsu.demo.entities.Customer;
 import ge.ibsu.demo.repositories.CustomerRepository;
 import ge.ibsu.demo.services.CustomerService;
 import ge.ibsu.demo.utils.GeneralUtil;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Slice;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.Arrays;
@@ -38,6 +41,11 @@ public class CustomerController {
     public Customer edit(@PathVariable Long id, @RequestBody AddCustomer addCustomer) throws Exception {
         GeneralUtil.checkRequiredProperties(addCustomer, Arrays.asList("firstName", "lastName", "addressId"));
         return customerService.edit(id, addCustomer);
+    }
+
+    @RequestMapping(value = "/search", method = RequestMethod.POST, produces = {"application/json"})
+    public Slice<Customer> search(@RequestBody RequestData<SearchCustomer> rd) {
+        return customerService.search(rd.getData(), rd.getPaging());
     }
 
 }
