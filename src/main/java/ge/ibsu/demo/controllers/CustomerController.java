@@ -4,7 +4,6 @@ import ge.ibsu.demo.dto.AddCustomer;
 import ge.ibsu.demo.dto.SearchCustomer;
 import ge.ibsu.demo.dto.request.RequestData;
 import ge.ibsu.demo.entities.Customer;
-import ge.ibsu.demo.repositories.CustomerRepository;
 import ge.ibsu.demo.services.CustomerService;
 import ge.ibsu.demo.utils.GeneralUtil;
 import org.springframework.beans.factory.annotation.Autowired;

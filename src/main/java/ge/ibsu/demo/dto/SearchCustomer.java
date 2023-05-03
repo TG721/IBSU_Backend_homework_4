@@ -5,7 +5,6 @@ public class SearchCustomer {
     private Integer active;
     private String name;
 
-
     public Integer getActive() {
         return active;
     }

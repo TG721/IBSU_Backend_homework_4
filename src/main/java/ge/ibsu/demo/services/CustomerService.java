@@ -13,6 +13,7 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Slice;
 import org.springframework.data.domain.Sort;
+import org.springframework.data.rest.webmvc.ResourceNotFoundException;
 import org.springframework.stereotype.Service;
 
 import java.util.Date;
@@ -32,7 +33,7 @@ public class CustomerService {
     }
 
     public Customer getCustomerById(Long id) throws Exception {
-        return customerRepository.findById(id).orElseThrow(() ->  new Exception("RECORD_NOT_FOUND"));
+        return customerRepository.findById(id).orElseThrow(() ->  new ResourceNotFoundException("RECORD_NOT_FOUND"));
     }
 
     @Transactional
@@ -63,15 +64,12 @@ public class CustomerService {
     }
 
     public Slice<Customer> search(SearchCustomer searchCustomer, Paging paging) {
-        String searchText = null;
-        if (searchCustomer.getName() != null && !searchCustomer.equals("")) {
-            searchText = "%" + searchCustomer.getName() + "%";
+        String name = null;
+        if (searchCustomer.getName() != null && !searchCustomer.getName().equals("")) {
+            name = "%" + searchCustomer.getName() + "%";
         }
-        Pageable pageable = PageRequest.of(
-                paging.getPage(),
-                paging.getSize(),
-                Sort.by("createDate").descending()
-        );
-        return customerRepository.search(searchCustomer.getActive(), searchText, pageable);
+        Pageable pageable = PageRequest.of(paging.getPage(), paging.getSize(), Sort.by("create_date").descending());
+        return customerRepository.search(searchCustomer.getActive(), name, pageable);
     }
+
 }
