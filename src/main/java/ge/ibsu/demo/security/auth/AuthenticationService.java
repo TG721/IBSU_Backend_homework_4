@@ -4,6 +4,8 @@ package ge.ibsu.demo.security.auth;
 import ge.ibsu.demo.entities.User;
 import ge.ibsu.demo.repositories.UserRepository;
 import ge.ibsu.demo.security.config.JwtService;
+import ge.ibsu.demo.security.token.Token;
+import ge.ibsu.demo.security.token.TokenRepository;
 import ge.ibsu.demo.utils.GeneralUtil;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
@@ -18,11 +20,14 @@ public class AuthenticationService {
     private final JwtService jwtService;
     private final AuthenticationManager authenticationManager;
 
-    public AuthenticationService(UserRepository repository, PasswordEncoder passwordEncoder, JwtService jwtService, AuthenticationManager authenticationManager) {
+    private final TokenRepository tokenRepository;
+
+    public AuthenticationService(UserRepository repository, PasswordEncoder passwordEncoder, JwtService jwtService, AuthenticationManager authenticationManager, TokenRepository tokenRepository) {
         this.repository = repository;
         this.passwordEncoder = passwordEncoder;
         this.jwtService = jwtService;
         this.authenticationManager = authenticationManager;
+        this.tokenRepository = tokenRepository;
     }
 
     public AuthenticationResponse register(RegistrationRequest request) throws Exception {
@@ -32,6 +37,7 @@ public class AuthenticationService {
 
         repository.save(user);
         var jwtToken = jwtService.generateToken(user);
+        tokenRepository.save(new Token(jwtToken, user));
         return new AuthenticationResponse(jwtToken);
     }
 
@@ -45,6 +51,7 @@ public class AuthenticationService {
         var user = repository.findByEmail(request.getEmail())
                 .orElseThrow();
         var jwtToken = jwtService.generateToken(user);
+        tokenRepository.save(new Token(jwtToken, user));
         return new AuthenticationResponse(jwtToken);
     }
 }

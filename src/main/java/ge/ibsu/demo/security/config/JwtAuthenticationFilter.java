@@ -1,6 +1,7 @@
 package ge.ibsu.demo.security.config;
 
 
+import ge.ibsu.demo.security.token.TokenRepository;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
@@ -23,9 +24,12 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
     private final UserDetailsService userDetailsService;
 
-    private JwtAuthenticationFilter(JwtService jwtService, UserDetailsService userDetailsService) {
+    private final TokenRepository tokenRepository;
+
+    private JwtAuthenticationFilter(JwtService jwtService, UserDetailsService userDetailsService, TokenRepository tokenRepository) {
         this.userDetailsService = userDetailsService;
         this.jwtService = jwtService;
+        this.tokenRepository = tokenRepository;
     }
     @Override
     protected void doFilterInternal(
@@ -48,10 +52,12 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
         jwt = authHeader.substring(7);
         userEmail = jwtService.extractUsername(jwt);
         if(userEmail != null && SecurityContextHolder.getContext().getAuthentication() == null){
-            UserDetails userDetails = this.userDetailsService.loadUserByUsername(userEmail); //TODO Change to username
+            UserDetails userDetails = this.userDetailsService.loadUserByUsername(userEmail);
 
-            //Is token still valid?
-            if (jwtService.isTokenValid(jwt, userDetails)){
+            var currentTokenIsValid = tokenRepository.findByToken(jwt)
+                    .map(i -> !i.expired && !i.revoked)
+                    .orElse(null);
+            if (jwtService.isTokenValid(jwt, userDetails) && currentTokenIsValid){
                 //Update security context
                 UsernamePasswordAuthenticationToken authToken = new UsernamePasswordAuthenticationToken(
                         userDetails,
