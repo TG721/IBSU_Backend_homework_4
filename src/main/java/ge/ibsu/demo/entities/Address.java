@@ -1,20 +1,22 @@
 package ge.ibsu.demo.entities;
 
-import jakarta.persistence.Column;
-import jakarta.persistence.Entity;
-import jakarta.persistence.Id;
-import jakarta.persistence.Table;
+import jakarta.persistence.*;
 
 @Entity
 @Table(name = "address")
 public class Address {
 
     @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "address_id")
     private Long addressId;
 
     @Column(name = "address")
     private String address;
+    // Add the following field for the relationship
+    @ManyToOne
+    @JoinColumn(name = "city_id")
+    private City city;
 
     public Long getAddressId() {
         return addressId;
@@ -30,5 +32,12 @@ public class Address {
 
     public void setAddress(String address) {
         this.address = address;
+    }
+    public City getCity() {
+        return city;
+    }
+
+    public void setCity(City city) {
+        this.city = city;
     }
 }
